@@ -26,7 +26,7 @@ func Read() (Config, error) {
 	return conf, nil
 }
 
-func (c Config) SetUser(username string) error {
+func (c *Config) SetUser(username string) error {
 	c.Current_user_name = username
 	homedir, err := os.UserHomeDir()
 	if err != nil {
@@ -34,6 +34,6 @@ func (c Config) SetUser(username string) error {
 	}
 
 	js, err := json.Marshal(c)
-	os.WriteFile(homedir+"./gatorconfig.json", js, 0666)
+	os.WriteFile(homedir+"/.gatorconfig.json", js, 0666)
 	return nil
 }

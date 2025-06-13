@@ -19,4 +19,5 @@ func main() {
 	}
 	content, err := os.ReadFile(homedir + "/.gatorconfig.json")
 	fmt.Println(string(content))
+	fmt.Println(conf)
 }
