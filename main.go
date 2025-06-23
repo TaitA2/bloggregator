@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/TaitA2/bloggregator/internal/config"
+	_ "github.com/lib/pq"
 )
 
 func main() {
