@@ -23,6 +23,7 @@ func GetCommands() Commands {
 
 	commands.Register("login", HandlerLogin)
 	commands.Register("register", HandlerRegister)
+	commands.Register("reset", HandlerReset)
 
 	return commands
 }
