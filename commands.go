@@ -2,6 +2,11 @@ package main
 
 import "fmt"
 
+type Command struct {
+	name      string
+	arguments []string
+}
+
 type Commands struct {
 	commandMap map[string]func(*State, Command) error
 }

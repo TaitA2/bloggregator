@@ -1,18 +1,16 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"os"
 )
 
-func GetArgs() (command string, args []string) {
+func GetArgs() (string, []string) {
 	cliArgs := os.Args
 
 	if len(cliArgs) < 2 {
-		fmt.Println(fmt.Errorf("\033[31m[ERROR] Too few arguments!\033[0m"))
-		os.Exit(1)
+		log.Fatalf("\033[31m[ERROR] Too few arguments!\033[0m")
 	}
 
-	command, args = cliArgs[1], cliArgs[2:]
-	return
+	return cliArgs[1], cliArgs[2:]
 }
