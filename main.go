@@ -1,32 +1,33 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"os"
 
 	"github.com/TaitA2/bloggregator/internal/config"
+	"github.com/TaitA2/bloggregator/internal/database"
 	_ "github.com/lib/pq"
 )
 
 func main() {
+
 	config, err := config.Read()
 	if err != nil {
 		return
 	}
 
+	db, err := sql.Open("postgres", config.Db_url)
+
+	dbQueries := database.New(db)
+
 	var state State
 	state.config = &config
+	state.db = dbQueries
 
 	commands := GetCommands()
 
-	cliArgs := os.Args
-
-	if len(cliArgs) < 2 {
-		fmt.Println(fmt.Errorf("\033[31m[ERROR] Too few arguments!\033[0m"))
-		os.Exit(1)
-	}
-
-	command, args := cliArgs[1], cliArgs[2:]
+	command, args := GetArgs()
 
 	err = commands.Run(&state, Command{command, args})
 	if err != nil {

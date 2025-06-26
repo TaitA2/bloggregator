@@ -22,6 +22,7 @@ func GetCommands() Commands {
 	var commands = Commands{make(map[string]func(*State, Command) error)}
 
 	commands.Register("login", HandlerLogin)
+	commands.Register("register", HandlerRegister)
 
 	return commands
 }
