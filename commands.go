@@ -30,6 +30,11 @@ func GetCommands() Commands {
 	commands.Register("register", HandlerRegister)
 	commands.Register("reset", HandlerReset)
 	commands.Register("users", HandlerUsers)
+	commands.Register("agg", HandlerAgg)
+	commands.Register("addfeed", HandlerAddFeed)
+	commands.Register("feeds", HandlerFeeds)
+	commands.Register("follow", HandlerFollow)
+	commands.Register("following", HandlerFollowing)
 
 	return commands
 }

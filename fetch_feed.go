@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/xml"
 	"fmt"
+	"html"
 	"io"
 	"net/http"
 )
@@ -31,5 +32,17 @@ func fetchFeed(ctx context.Context, feedURL string) (*RSSFeed, error) {
 		return nil, fmt.Errorf("Error unmarshalling xml %v", err)
 	}
 
+	decodeEscaped(feed)
+
 	return feed, nil
+}
+
+// Function to decode escaped HTML entities (like &ldquo;)
+func decodeEscaped(feed *RSSFeed) {
+	feed.Channel.Title = html.UnescapeString(feed.Channel.Title)
+	feed.Channel.Description = html.UnescapeString(feed.Channel.Description)
+	for _, item := range feed.Channel.Item {
+		item.Title = html.UnescapeString(item.Title)
+		item.Description = html.UnescapeString(item.Description)
+	}
 }
