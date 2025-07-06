@@ -11,15 +11,25 @@ import (
 )
 
 func HandlerAgg(s *State, cmd Command) error {
-	url := "https://www.wagslane.dev/index.xml"
-
-	feed, err := fetchFeed(context.Background(), url)
+	user, err := s.db.GetUser(context.Background(), s.config.Current_user_name)
 	if err != nil {
-		return fmt.Errorf("Error fetching feed: %v\n", err)
+		return err
+	}
+	feedFollows, err := s.db.GetFeedFollowsForUser(context.Background(), user.ID)
+	if err != nil {
+		return err
 	}
 
-	fmt.Println(feed)
+	for i := range feedFollows {
+		url := feedFollows[i].Url
 
+		feed, err := fetchFeed(context.Background(), url)
+		if err != nil {
+			return fmt.Errorf("Error fetching feed: %v\n", err)
+		}
+
+		fmt.Println(feed)
+	}
 	return nil
 }
 
@@ -184,4 +194,8 @@ func HandlerFollowing(s *State, cmd Command) error {
 		fmt.Println(feedFollow.Name_2)
 	}
 	return nil
+}
+
+func HandlerUnfollow(s *State, cmd Command) error {
+	return s.db.Unfollow(context.Background(), cmd.arguments[0])
 }

@@ -17,3 +17,7 @@ select *, users.name as user, feeds.name as feed from feed_follows
 join users on users.id = user_id
 join feeds on feeds.id = feed_id
 where feed_follows.user_id = $1;
+
+-- name: Unfollow :exec
+delete from feed_follows
+where feed_id = (select id from feeds where url = $1);

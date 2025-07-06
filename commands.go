@@ -34,6 +34,7 @@ func GetCommands() Commands {
 	commands.Register("addfeed", HandlerAddFeed)
 	commands.Register("feeds", HandlerFeeds)
 	commands.Register("follow", HandlerFollow)
+	commands.Register("unfollow", HandlerUnfollow)
 	commands.Register("following", HandlerFollowing)
 
 	return commands
