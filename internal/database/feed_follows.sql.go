@@ -68,7 +68,7 @@ func (q *Queries) CreateFeedFollow(ctx context.Context, arg CreateFeedFollowPara
 }
 
 const getFeedFollowsForUser = `-- name: GetFeedFollowsForUser :many
-select feed_follows.id, feed_follows.created_at, feed_follows.updated_at, feed_follows.user_id, feed_id, users.id, users.created_at, users.updated_at, users.name, feeds.id, feeds.created_at, feeds.updated_at, feeds.name, url, feeds.user_id, last_fetched_at, users.name as user, feeds.name as feed from feed_follows 
+select feed_follows.id, feed_follows.created_at, feed_follows.updated_at, feed_follows.user_id, feed_id, users.id, users.created_at, users.updated_at, users.name, feeds.id, feeds.created_at, feeds.updated_at, last_fetched_at, feeds.name, url, feeds.user_id, users.name as user, feeds.name as feed from feed_follows 
 join users on users.id = user_id
 join feeds on feeds.id = feed_id
 where feed_follows.user_id = $1
@@ -87,10 +87,10 @@ type GetFeedFollowsForUserRow struct {
 	ID_3          uuid.UUID
 	CreatedAt_3   time.Time
 	UpdatedAt_3   time.Time
+	LastFetchedAt sql.NullTime
 	Name_2        string
 	Url           string
 	UserID_2      uuid.UUID
-	LastFetchedAt sql.NullTime
 	User          string
 	Feed          string
 }
@@ -117,10 +117,10 @@ func (q *Queries) GetFeedFollowsForUser(ctx context.Context, userID uuid.UUID) (
 			&i.ID_3,
 			&i.CreatedAt_3,
 			&i.UpdatedAt_3,
+			&i.LastFetchedAt,
 			&i.Name_2,
 			&i.Url,
 			&i.UserID_2,
-			&i.LastFetchedAt,
 			&i.User,
 			&i.Feed,
 		); err != nil {

@@ -4,13 +4,31 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/TaitA2/bloggregator/internal/database"
 	"github.com/google/uuid"
 )
 
-func HandlerAgg(s *State, cmd Command, user database.User) error {
+func HandlerBrowse(s *State, cmd Command, user database.User) error {
+	var limit int
+	if len(cmd.arguments) < 1 {
+		limit = 2
+	} else {
+		limit, err := strconv.Atoi(cmd.arguments[0])
+		if err != nil {
+			return fmt.Errorf("Error converting browse limit to integer: %v", err)
+		}
+	}
+	s.db.GetPostsForUser(context.Background(), database.GetPostsForUserParams{
+		UserID: user.ID,
+		Limit:  int32(limit),
+	})
+	return nil
+}
+
+func HandlerAgg(s *State, cmd Command) error {
 	if len(cmd.arguments) < 1 {
 		return fmt.Errorf("No arguments given, expected 1 argument: Time between requests (eg. 1s, 1m, 1h, etc.)")
 	}
@@ -24,7 +42,9 @@ func HandlerAgg(s *State, cmd Command, user database.User) error {
 	ticker := time.NewTicker(delay)
 
 	for ; ; <-ticker.C {
-		scrapeFeeds(s, context.Background())
+		if err := scrapeFeeds(s, context.Background()); err != nil {
+			return fmt.Errorf("Error scraping feeds: %v", err)
+		}
 	}
 }
 
