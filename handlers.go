@@ -10,11 +10,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func HandlerAgg(s *State, cmd Command) error {
-	user, err := s.db.GetUser(context.Background(), s.config.Current_user_name)
-	if err != nil {
-		return err
-	}
+func HandlerAgg(s *State, cmd Command, user database.User) error {
 	feedFollows, err := s.db.GetFeedFollowsForUser(context.Background(), user.ID)
 	if err != nil {
 		return err
@@ -33,7 +29,7 @@ func HandlerAgg(s *State, cmd Command) error {
 	return nil
 }
 
-func HandlerReset(s *State, cmd Command) error {
+func HandlerReset(s *State, cmd Command, user database.User) error {
 
 	err := s.db.Reset(context.Background())
 
@@ -45,7 +41,7 @@ func HandlerReset(s *State, cmd Command) error {
 	return nil
 }
 
-func HandlerLogin(s *State, cmd Command) error {
+func HandlerLogin(s *State, cmd Command, user database.User) error {
 	if len(cmd.arguments) < 1 {
 		return fmt.Errorf("No arguments given, expected 1 argument: username")
 	}
@@ -63,7 +59,7 @@ func HandlerLogin(s *State, cmd Command) error {
 	return nil
 }
 
-func HandlerRegister(s *State, cmd Command) error {
+func HandlerRegister(s *State, cmd Command, user database.User) error {
 	if len(cmd.arguments) < 1 {
 		return fmt.Errorf("No arguments given, expected 1 argument: username")
 	}
@@ -76,7 +72,7 @@ func HandlerRegister(s *State, cmd Command) error {
 		return err
 	}
 
-	user, err := s.db.CreateUser(context.Background(), database.CreateUserParams{
+	user, err = s.db.CreateUser(context.Background(), database.CreateUserParams{
 		ID:        uuid.New(),
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
@@ -97,7 +93,7 @@ func HandlerRegister(s *State, cmd Command) error {
 	return nil
 }
 
-func HandlerUsers(s *State, cmd Command) error {
+func HandlerUsers(s *State, cmd Command, user database.User) error {
 	users, err := s.db.GetUsers(context.Background())
 	if err != nil {
 		return fmt.Errorf("Error retrieving users from db: %v", err)
@@ -112,16 +108,11 @@ func HandlerUsers(s *State, cmd Command) error {
 	return nil
 }
 
-func HandlerAddFeed(s *State, cmd Command) error {
+func HandlerAddFeed(s *State, cmd Command, user database.User) error {
 	if len(cmd.arguments) < 2 {
 		return fmt.Errorf("Insuffficient arguments, expected 2: name, url.")
 	}
 	feedName, feedUrl := cmd.arguments[0], cmd.arguments[1]
-
-	user, err := s.db.GetUser(context.Background(), s.config.Current_user_name)
-	if err != nil {
-		return fmt.Errorf("Error retrieving user %s from database.", s.config.Current_user_name)
-	}
 
 	feed, err := s.db.CreateFeed(context.Background(), database.CreateFeedParams{
 		ID:        uuid.New(),
@@ -132,13 +123,17 @@ func HandlerAddFeed(s *State, cmd Command) error {
 		UserID:    user.ID,
 	})
 
-	HandlerFollow(s, Command{name: "follow", arguments: []string{feedUrl}})
+	if err != nil {
+		return err
+	}
+
+	HandlerFollow(s, Command{name: "follow", arguments: []string{feedUrl}}, user)
 	fmt.Println(feed)
 
 	return nil
 }
 
-func HandlerFeeds(s *State, cmd Command) error {
+func HandlerFeeds(s *State, cmd Command, user database.User) error {
 	feeds, err := s.db.GetFeeds(context.Background())
 	if err != nil {
 		return fmt.Errorf("Error retrieving feeds from database: %v", err)
@@ -148,16 +143,12 @@ func HandlerFeeds(s *State, cmd Command) error {
 	return nil
 }
 
-func HandlerFollow(s *State, cmd Command) error {
+func HandlerFollow(s *State, cmd Command, user database.User) error {
 	if len(cmd.arguments) < 1 {
 		return fmt.Errorf("No arguments given, expected 1 argument: url")
 	}
 
 	url := cmd.arguments[0]
-	user, err := s.db.GetUser(context.Background(), s.config.Current_user_name)
-	if err != nil {
-		return fmt.Errorf("Error retrieving user %s from database.", s.config.Current_user_name)
-	}
 	feed, err := s.db.GetFeed(context.Background(), url)
 	if err != nil {
 		return fmt.Errorf("Error fetching feed: %v\n", err)
@@ -181,11 +172,7 @@ func HandlerFollow(s *State, cmd Command) error {
 
 }
 
-func HandlerFollowing(s *State, cmd Command) error {
-	user, err := s.db.GetUser(context.Background(), s.config.Current_user_name)
-	if err != nil {
-		return fmt.Errorf("Error retrieving user for following command: %v", err)
-	}
+func HandlerFollowing(s *State, cmd Command, user database.User) error {
 	feedFollows, err := s.db.GetFeedFollowsForUser(context.Background(), user.ID)
 	if err != nil {
 		return err
@@ -196,6 +183,6 @@ func HandlerFollowing(s *State, cmd Command) error {
 	return nil
 }
 
-func HandlerUnfollow(s *State, cmd Command) error {
+func HandlerUnfollow(s *State, cmd Command, user database.User) error {
 	return s.db.Unfollow(context.Background(), cmd.arguments[0])
 }
