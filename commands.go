@@ -26,13 +26,13 @@ func (c *Commands) Register(name string, f func(*State, Command) error) {
 func GetCommands() Commands {
 	var commands = Commands{make(map[string]func(*State, Command) error)}
 
-	commands.Register("login", middlewareLoggedIn(HandlerLogin))
-	commands.Register("register", middlewareLoggedIn(HandlerRegister))
-	commands.Register("reset", middlewareLoggedIn(HandlerReset))
-	commands.Register("users", middlewareLoggedIn(HandlerUsers))
+	commands.Register("login", HandlerLogin)
+	commands.Register("register", HandlerRegister)
+	commands.Register("reset", HandlerReset)
+	commands.Register("users", HandlerUsers)
 	commands.Register("agg", middlewareLoggedIn(HandlerAgg))
 	commands.Register("addfeed", middlewareLoggedIn(HandlerAddFeed))
-	commands.Register("feeds", middlewareLoggedIn(HandlerFeeds))
+	commands.Register("feeds", HandlerFeeds)
 	commands.Register("follow", middlewareLoggedIn(HandlerFollow))
 	commands.Register("unfollow", middlewareLoggedIn(HandlerUnfollow))
 	commands.Register("following", middlewareLoggedIn(HandlerFollowing))

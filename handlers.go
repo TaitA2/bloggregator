@@ -11,25 +11,24 @@ import (
 )
 
 func HandlerAgg(s *State, cmd Command, user database.User) error {
-	feedFollows, err := s.db.GetFeedFollowsForUser(context.Background(), user.ID)
+	if len(cmd.arguments) < 1 {
+		return fmt.Errorf("No arguments given, expected 1 argument: Time between requests (eg. 1s, 1m, 1h, etc.)")
+	}
+	delay, err := time.ParseDuration(cmd.arguments[0])
 	if err != nil {
-		return err
+		return fmt.Errorf("Error parsing aggregate duration: %v", err)
 	}
 
-	for i := range feedFollows {
-		url := feedFollows[i].Url
+	fmt.Printf("Collecting feeds every %v\n", delay)
 
-		feed, err := fetchFeed(context.Background(), url)
-		if err != nil {
-			return fmt.Errorf("Error fetching feed: %v\n", err)
-		}
+	ticker := time.NewTicker(delay)
 
-		fmt.Println(feed)
+	for ; ; <-ticker.C {
+		scrapeFeeds(s, context.Background())
 	}
-	return nil
 }
 
-func HandlerReset(s *State, cmd Command, user database.User) error {
+func HandlerReset(s *State, cmd Command) error {
 
 	err := s.db.Reset(context.Background())
 
@@ -41,7 +40,7 @@ func HandlerReset(s *State, cmd Command, user database.User) error {
 	return nil
 }
 
-func HandlerLogin(s *State, cmd Command, user database.User) error {
+func HandlerLogin(s *State, cmd Command) error {
 	if len(cmd.arguments) < 1 {
 		return fmt.Errorf("No arguments given, expected 1 argument: username")
 	}
@@ -59,14 +58,14 @@ func HandlerLogin(s *State, cmd Command, user database.User) error {
 	return nil
 }
 
-func HandlerRegister(s *State, cmd Command, user database.User) error {
+func HandlerRegister(s *State, cmd Command) error {
 	if len(cmd.arguments) < 1 {
 		return fmt.Errorf("No arguments given, expected 1 argument: username")
 	}
 
 	username := cmd.arguments[0]
 
-	_, err := s.db.GetUser(context.Background(), username)
+	user, err := s.db.GetUser(context.Background(), username)
 
 	if err != sql.ErrNoRows && err != nil {
 		return err
@@ -93,7 +92,7 @@ func HandlerRegister(s *State, cmd Command, user database.User) error {
 	return nil
 }
 
-func HandlerUsers(s *State, cmd Command, user database.User) error {
+func HandlerUsers(s *State, cmd Command) error {
 	users, err := s.db.GetUsers(context.Background())
 	if err != nil {
 		return fmt.Errorf("Error retrieving users from db: %v", err)
@@ -133,7 +132,7 @@ func HandlerAddFeed(s *State, cmd Command, user database.User) error {
 	return nil
 }
 
-func HandlerFeeds(s *State, cmd Command, user database.User) error {
+func HandlerFeeds(s *State, cmd Command) error {
 	feeds, err := s.db.GetFeeds(context.Background())
 	if err != nil {
 		return fmt.Errorf("Error retrieving feeds from database: %v", err)
