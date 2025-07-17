@@ -20,4 +20,4 @@ where feed_follows.user_id = $1;
 
 -- name: Unfollow :exec
 delete from feed_follows
-where feed_id = (select id from feeds where url = $1);
+where feed_id = (select id from feeds where name = $1);

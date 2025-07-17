@@ -16,15 +16,24 @@ func HandlerBrowse(s *State, cmd Command, user database.User) error {
 	if len(cmd.arguments) < 1 {
 		limit = 2
 	} else {
-		limit, err := strconv.Atoi(cmd.arguments[0])
+		arg, err := strconv.Atoi(cmd.arguments[0])
+		limit = arg
 		if err != nil {
 			return fmt.Errorf("Error converting browse limit to integer: %v", err)
 		}
 	}
-	s.db.GetPostsForUser(context.Background(), database.GetPostsForUserParams{
+	posts, err := s.db.GetPostsForUser(context.Background(), database.GetPostsForUserParams{
 		UserID: user.ID,
 		Limit:  int32(limit),
 	})
+	if err != nil {
+		return fmt.Errorf("Error getting posts for user: %v", err)
+	}
+	for i := range posts {
+		fmt.Println(posts[i].Title)
+		fmt.Println(posts[i].Description.String)
+		fmt.Println()
+	}
 	return nil
 }
 
