@@ -190,7 +190,9 @@ func HandlerFeeds(s *State, cmd Command) error {
 		return fmt.Errorf("Error retrieving feeds from database: %v", err)
 	}
 
-	fmt.Println(feeds)
+	for i := range feeds {
+		fmt.Println(feeds[i])
+	}
 	return nil
 }
 
