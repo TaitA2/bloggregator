@@ -26,6 +26,7 @@ func (c *Commands) Register(name string, f func(*State, Command) error) {
 func GetCommands() Commands {
 	var commands = Commands{make(map[string]func(*State, Command) error)}
 
+	commands.Register("help", HandlerHelp)
 	commands.Register("login", HandlerLogin)
 	commands.Register("register", HandlerRegister)
 	commands.Register("reset", HandlerReset)

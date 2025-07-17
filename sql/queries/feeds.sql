@@ -15,7 +15,7 @@ select feeds.name as name, url, users.name as user from feeds
 join users on users.id = feeds.user_id;
 
 -- name: GetFeed :one
-select * from feeds where url = $1;
+select * from feeds where name = $1;
 
 -- name: MarkFeedFetched :one
 update feeds

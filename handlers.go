@@ -11,6 +11,29 @@ import (
 	"github.com/google/uuid"
 )
 
+func HandlerHelp(s *State, cmd Command) error {
+	fmt.Println(`
+Welcome to the Bloggregator Blog Aggregator!
+
+Available commands:
+
+* help                 - prints help message
+* register [username]  - register a new user with the given username
+* login [username]     - login as the given user
+* users                - lists all registered users
+* reset                - removes all registered users
+* feeds                - lists all available feeds
+* addfeed [name] [url] - saves the RSS feed of the given URL as the given name to the available feeds
+* follow [feed name]   - adds the named feed to the current user's followed feeds
+* unfollow [feed name] - removes the named feed from the current user's followed feeds
+* following            - lists all of the current user's followed feeds
+* agg [interval]       - aggregates all available feeds once per given interval (1s, 1m, 1h, etc.). Intended to be run in the background.
+* browse [limit]       - prints [limit] aggregated posts from followed feeds
+			
+		`)
+	return nil
+}
+
 func HandlerBrowse(s *State, cmd Command, user database.User) error {
 	var limit int
 	if len(cmd.arguments) < 1 {
@@ -173,11 +196,11 @@ func HandlerFeeds(s *State, cmd Command) error {
 
 func HandlerFollow(s *State, cmd Command, user database.User) error {
 	if len(cmd.arguments) < 1 {
-		return fmt.Errorf("No arguments given, expected 1 argument: url")
+		return fmt.Errorf("No arguments given, expected 1 argument: feed name")
 	}
 
-	url := cmd.arguments[0]
-	feed, err := s.db.GetFeed(context.Background(), url)
+	name := cmd.arguments[0]
+	feed, err := s.db.GetFeed(context.Background(), name)
 	if err != nil {
 		return fmt.Errorf("Error fetching feed: %v\n", err)
 	}
